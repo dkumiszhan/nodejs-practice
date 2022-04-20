@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs');
+const activeUsers = require('./active_users');
 const { Server } = require('socket.io');
 
 const server = http.createServer((req, res) => {
@@ -26,9 +27,15 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'content-type': 'text/javascript' });
             fs.createReadStream('./public/script.js').pipe(res);
             break;
+        case '':
+            break;
         default:
-            res.writeHead(404);
-            res.end('not found');
+            if (req.url.startsWith('/api/active_users.json')) {
+                activeUsers.getData(req, res);
+            } else {
+                res.writeHead(404);
+                res.end('not found');
+            }
             break;
     }
 
