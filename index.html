@@ -23,82 +23,31 @@
 
 <body>
   <header class="header">
-    REPLACEME
-    <h1 class="header__title">Hello world!</h1>
-    <p>test test test</p>
-
-    <span>New number is </span><span id="number">... incoming</span>
+    <h1 class="header__title">Dashboards</h1>
+    <img class="header__logo" src="./images/image.jpg" alt="company logo">
+    <!-- <p>test test test</p> -->
   </header>
   <main>
-    <label for="start">Start date:</label>
-
-    <input type="date" id="start" name="trip-start" value="2022-04-20" onchange="dateChanged(this)">
-
-    <div>
-      <canvas id="myChart"></canvas>
+    <span>New number is </span><span id="number">... incoming</span>
+    <div class="date">
+      <label for="start">Start date:</label>
+      <input class="start-date" type="date" id="start" name="trip-start" value="2022-04-20">
+      <label for="end">End date:</label>
+      <input class="end-date" type="date" id="end" name="trip-end" value="2022-04-20">
+    </div>
+    
+    <div class="dayview-board">
+      <h2 id="users"><span class="totalUsers"></span>Users</h2>
+      <canvas class="day-view" id="myChart"></canvas>
+    </div>
+    <div class="historicview-board">
+      <canvas class="historic-view"></canvas>
+      <canvas class="historic-view-cities"></canvas>
     </div>
 
   </main>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const config = {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'My First dataset',
-          backgroundColor: 'rgb(255, 99, 132)',
-          borderColor: 'rgb(255, 99, 132)',
-          data: [],
-        }]
-      },
-      options: {}
-    };
-    let myChart;
-
-    function initChart() {
-
-      myChart = new Chart(
-        document.getElementById('myChart'),
-        config
-      );
-
-    }
-
-    initChart();
-
-
-    function updateChart(cities, activeUsers) {
-      config.data.labels = cities;
-      config.data.datasets[0].data = activeUsers;
-      myChart.update();
-    }
-
-    function dateChanged(target) {
-      console.log('date changed ', target.value);
-      let date = target.value;
-
-      let httpRequest = new XMLHttpRequest();
-      httpRequest.open('GET', '/api/active_users.json?date=' + date, true);
-      httpRequest.onreadystatechange = function () {
-        if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          // Everything is good, the response was received.
-          if (httpRequest.status === 200) {
-            alert(httpRequest.responseText);
-            let parsed = JSON.parse(httpRequest.responseText);
-            updateChart(parsed.cities, parsed.activeUsers);
-          } else {
-            alert('There was a problem with the request.');
-          }
-        } else {
-          // Not ready yet.
-        }
-      };
-
-      httpRequest.send();
-    }
-
-  </script>
+  
 </body>
 
 </html>

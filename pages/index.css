@@ -1,2 +1,5 @@
 @import url(../vendor/normalize.css);
+@import url(../header/header.css);
 @import url(../header/__title/header__title.css);
+@import url(../dayview-board/dayview-board.css);
+@import url(../historicview-board/historicview-board.css);
