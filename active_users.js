@@ -40,22 +40,27 @@ exports.getData = function (req, res) {
 
   console.log(startDate);
   analyticsDataClient
-    .runReport({
+    .batchRunReports({
       property: `properties/${propertyId}`,
-      dateRanges: [
+      requests: [
         {
-          startDate: startDate,
-          endDate: endDate,
-        },
-      ],
-      dimensions: [
-        {
-          name: "city",
-        },
-      ],
-      metrics: [
-        {
-          name: "activeUsers",
+          property: `properties/${propertyId}`,
+          dateRanges: [
+            {
+              startDate: startDate,
+              endDate: endDate,
+            },
+          ],
+          dimensions: [
+            {
+              name: "city",
+            },
+          ],
+          metrics: [
+            {
+              name: "activeUsers",
+            },
+          ],
         },
       ],
     })
@@ -65,7 +70,7 @@ exports.getData = function (req, res) {
 
       let cities = [],
         data = [];
-      report[0].rows.forEach((row) => {
+      report[0].reports[0].rows.forEach((row) => {
         console.log(row.dimensionValues[0], row.metricValues[0]);
         cities.push(row.dimensionValues[0].value);
         data.push(parseInt(row.metricValues[0].value));
