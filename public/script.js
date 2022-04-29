@@ -69,8 +69,9 @@ let myChart;
 let myChartHistoric;
 let myChartHistoricCities;
 
-const startDate = document.querySelector(".start-date");
-const endDate = document.querySelector(".end-date");
+const startDateInput = document.querySelector(".start-date");
+const endDateInput = document.querySelector(".end-date");
+const chooseDateButton = document.querySelector(".choose-date");
 
 function initChart() {
   myChart = new Chart(document.getElementById("myChart"), config);
@@ -101,14 +102,9 @@ function updateChart(cities, activeUsers) {
   myChart.update();
 }
 
-startDate.addEventListener("change", function () {
-  console.log(this);
-  //startDate.value = this;
-  startDate.onchange = dateChanged(this);
-});
-
-endDate.addEventListener("change", function () {
-  endDate.onchange = dateChanged(this);
+chooseDateButton.addEventListener("click", function () {
+  console.log("you clicked");
+  dateChosen();
 });
 
 function collectData(dateStart, dateEnd) {
@@ -130,12 +126,16 @@ function collectData(dateStart, dateEnd) {
   // };
 }
 
-function dateChanged(target) {
-  console.log("date changed ", target.value);
-  let date = target.value;
+function dateChosen() {
+  let startDate = startDateInput.value;
+  let endDate = endDateInput.value;
 
   let httpRequest = new XMLHttpRequest();
-  httpRequest.open("GET", "/api/active_users.json?date=" + date, true);
+  httpRequest.open(
+    "GET",
+    `/api/active_users.json?startDate=${startDate}&endDate=${endDate}`,
+    true
+  );
   httpRequest.onreadystatechange = function () {
     if (httpRequest.readyState === XMLHttpRequest.DONE) {
       // Everything is good, the response was received.

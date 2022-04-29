@@ -41,15 +41,9 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, { "content-type": "text/javascript" });
       fs.createReadStream("./public/script.js").pipe(res);
       break;
-    case "./script.js":
-      res.writeHead(200, { "content-type": "text/javascript" });
-      fs.createReadStream("./index.js").pipe(res);
-      break;
-    case "./script.js":
+    case "/images/image.jpg":
       res.writeHead(200, { "content-type": "image/jpeg" });
       fs.createReadStream("./images/image.jpg").pipe(res);
-      break;
-    case "":
       break;
     default:
       if (req.url.startsWith("/api/active_users.json")) {
@@ -73,7 +67,7 @@ io.on("connection", (socket) => {
   setInterval(function () {
     socket.emit("new-number", x);
     x = (x % 10) + 1;
-  }, 1000);
+  }, 10000);
 
   // receive a message from the client
   socket.on("hello from client", (...args) => {
