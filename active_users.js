@@ -14,24 +14,18 @@ exports.getData = function (req, res) {
   console.log(queryObject);
 
   if (!queryObject["startDate"]) {
-    res.writeHead(400, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        success: false,
-        message: "No startDate provided",
-      })
-    );
+    res.status(400).json({
+      success: false,
+      message: "No startDate provided",
+    });
     return;
   }
 
   if (!queryObject["endDate"]) {
-    res.writeHead(400, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        success: false,
-        message: "No endDate provided",
-      })
-    );
+    res.status(400).json({
+      success: false,
+      message: "No endDate provided",
+    });
     return;
   }
 
@@ -99,12 +93,9 @@ exports.getData = function (req, res) {
       });
 
       console.log("here is the result");
-      res.writeHead(200, { "content-type": "application/json" });
-      res.end(
-        JSON.stringify({
-          cities: cities,
-          activeUsers: data,
-        })
-      );
+      res.json({
+        cities: cities,
+        activeUsers: data,
+      });
     });
 };
