@@ -62,11 +62,33 @@ exports.getData = function (req, res) {
             },
           ],
         },
+        {
+          property: `properties/${propertyId}`,
+          dateRanges: [
+            {
+              startDate: startDate,
+              endDate: endDate,
+            },
+          ],
+          dimensions: [
+            {
+              name: "city",
+            },
+            {
+              name: "nthDay",
+            },
+          ],
+          metrics: [
+            {
+              name: "activeUsers",
+            },
+          ],
+        },
       ],
     })
     .then((report) => {
       console.log("Report result:");
-      console.log(JSON.stringify(report));
+      console.log(JSON.stringify(report, null, 2));
 
       let cities = [],
         data = [];
