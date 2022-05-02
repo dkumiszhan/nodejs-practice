@@ -3,3 +3,45 @@
 @import url(../header/__title/header__title.css);
 @import url(../dayview-board/dayview-board.css);
 @import url(../historicview-board/historicview-board.css);
+
+.page {
+  margin: 0 auto;
+  max-width: 1440px;
+}
+
+.main {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.options {
+  margin: 40px 0 20px;
+}
+
+.ranges {
+  margin: 0 0 20px;
+}
+
+.boards {
+  margin: 40px 0 20px;
+}
+
+.boards__title {
+  margin: 0;
+  font-weight: normal;
+  font-size: 30px;
+  display: none;
+}
+
+.boards__title_visible {
+  display: block;
+}
+
+.totalUsers {
+  font-size: 30px;
+  font-weight: normal;
+}
+
+.information {
+  margin: 20px 0 20px;
+}

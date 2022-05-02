@@ -21,26 +21,59 @@
   <script type="module" src="public/script.js"></script>
 </head>
 
-<body>
+<body class="page">
   <header class="header">
     <h1 class="header__title">Dashboards</h1>
     <img class="header__logo" src="/public/images/image.jpg" alt="company logo">
     <!-- <p>test test test</p> -->
   </header>
-  <main>
-    <span>New number is </span><span id="number">... incoming</span>
-    <div class="date">
+  <main class="main">
+    <section class="options">
       <label for="start">Start date:</label>
       <input class="start-date" type="date" id="start" name="trip-start" value="2022-04-20">
       <label for="end">End date:</label>
       <input class="end-date" type="date" id="end" name="trip-end" value="2022-04-20">
-      <input class="choose-date" type="button" id="chooseDate" value="OK">
-    </div>
+      <input class="choose-date" type="button" id="chooseDate" value="OK"> 
+    </section>
+
+    <section class="ranges">
+      <label for="range-select">Choose a predefined time range:</label>
+      <select class=ranges__select name="ranges" id="range-select">
+        <option value="">--Please choose an option--</option>
+        <option value="first-quarter">Quater-1</option>
+        <option value="second-quarter">Quarter-2</option>
+        <option value="third-quarter">Quarter-3</option>
+        <option value="forth-quarter">Quarter-4</option>
+      </select>
+    </section>
+
+    <section class="buttons">
+      <input type="button" class="buttons__day" value="Day">
+      <input type="button" class="buttons__month" value="Month">
+      <input type="button" class="buttons__year" value="Year">
+    </section>
     
-    <div class="dayview-board">
+    <section class="information">
+      <div class="information__day">
+        <span class="totalUsers"></span>
+        <h2 class="boards__title" id="users">Users on a day</h2>
+      </div>
+      <div class="information__period">
+        <span class="totalUsers information__users-total"></span>
+        <h2 class="boards__title-period">Users in a period</h2>
+      </div>
+    </section>
+
+    <section class="boards">
+      <canvas class="day-view daily_chart"></canvas>
+      <canvas class="day-view by_city_chart"></canvas>
+      <canvas class="day-view by_day_chart"></canvas>
+    </section>
+    
+    <!-- <div class="dayview-board">
       <h2 id="users"><span class="totalUsers"></span>Users</h2>
       <canvas class="day-view" id="myChart"></canvas>
-    </div>
+    </div> -->
     <div class="historicview-board">
       <canvas class="historic-view"></canvas>
       <canvas class="historic-view-cities"></canvas>

@@ -69,7 +69,7 @@ exports.getData = function (req, res) {
               name: "city",
             },
             {
-              name: "nthDay",
+              name: "date",
             },
           ],
           metrics: [
