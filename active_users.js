@@ -3,17 +3,12 @@ let propertyId = 309400325;
 // Imports the Google Analytics Data API client library.
 const { BetaAnalyticsDataClient } = require("@google-analytics/data");
 
-const url = require("url");
-
 // Using a default constructor instructs the client to use the credentials
 // specified in GOOGLE_APPLICATION_CREDENTIALS environment variable.
 const analyticsDataClient = new BetaAnalyticsDataClient();
 
 exports.getData = function (req, res) {
-  const queryObject = url.parse(req.url, true).query;
-  console.log(queryObject);
-
-  if (!queryObject["startDate"]) {
+  if (!req.query["startDate"]) {
     res.status(400).json({
       success: false,
       message: "No startDate provided",
@@ -21,7 +16,7 @@ exports.getData = function (req, res) {
     return;
   }
 
-  if (!queryObject["endDate"]) {
+  if (!req.query["endDate"]) {
     res.status(400).json({
       success: false,
       message: "No endDate provided",
@@ -29,57 +24,43 @@ exports.getData = function (req, res) {
     return;
   }
 
-  let startDate = queryObject["startDate"];
-  let endDate = queryObject["endDate"];
-  let additionalDimensions = queryObject["additionalDimensions"];
+  let startDate = req.query["startDate"];
+  let endDate = req.query["endDate"];
+  let metrics = ["activeUsers"];
+  let dimensions = ["city"];
+
+  if (req.query.metrics) {
+    metrics = req.query.metrics;
+    if (typeof metrics == "string") {
+      metrics = [metrics];
+    }
+  }
+
+  if (req.query.dimensions) {
+    dimensions = req.query.dimensions;
+
+    if (typeof dimensions == "string") {
+      dimensions = [dimensions];
+    }
+  }
+  console.log("query string " + JSON.stringify(req.query));
 
   console.log(startDate);
   analyticsDataClient
-    .batchRunReports({
+    .runReport({
       property: `properties/${propertyId}`,
-      requests: [
+      dateRanges: [
         {
-          property: `properties/${propertyId}`,
-          dateRanges: [
-            {
-              startDate: startDate,
-              endDate: endDate,
-            },
-          ],
-          dimensions: [
-            {
-              name: "city",
-            },
-          ],
-          metrics: [
-            {
-              name: "activeUsers",
-            },
-          ],
-        },
-        {
-          property: `properties/${propertyId}`,
-          dateRanges: [
-            {
-              startDate: startDate,
-              endDate: endDate,
-            },
-          ],
-          dimensions: [
-            {
-              name: "city",
-            },
-            {
-              name: "date",
-            },
-          ],
-          metrics: [
-            {
-              name: "activeUsers",
-            },
-          ],
+          startDate: startDate,
+          endDate: endDate,
         },
       ],
+      dimensions: dimensions.map((name) => ({
+        name: name,
+      })),
+      metrics: metrics.map((name) => ({
+        name: name,
+      })),
     })
     .then((report) => {
       console.log("Report result:");
@@ -87,7 +68,7 @@ exports.getData = function (req, res) {
 
       let cities = [],
         data = [];
-      report[0].reports[0].rows.forEach((row) => {
+      report[0].rows.forEach((row) => {
         console.log(row.dimensionValues[0], row.metricValues[0]);
         cities.push(row.dimensionValues[0].value);
         data.push(parseInt(row.metricValues[0].value));
