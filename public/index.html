@@ -50,13 +50,13 @@
     <section class="buttons">
       <div class="btn-group btn-group-toggle" data-toggle="buttons">
         <label class="btn btn-secondary active">
-          <input type="radio" name="options" id="option-day" autocomplete="off" checked> Day
+          <input type="radio" name="options" id="option-day" autocomplete="off" checked onchange="handleUnitButton(0)"> Day
         </label>
         <label class="btn btn-secondary">
-          <input type="radio" name="options" id="option-month" autocomplete="off"> Month
+          <input type="radio" name="options" id="option-month" autocomplete="off" onchange="handleUnitButton(1)"> Month
         </label>
         <label class="btn btn-secondary">
-          <input type="radio" name="options" id="option-year" autocomplete="off"> Year
+          <input type="radio" name="options" id="option-year" autocomplete="off" onchange="handleUnitButton(2)"> Year
         </label>
       </div>
     </section>

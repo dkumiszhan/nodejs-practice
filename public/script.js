@@ -17,6 +17,13 @@
 
 console.log("Hello from frontend JS");
 
+const UNIT_DAY = 0;
+const UNIT_MONTH = 1;
+const UNIT_YEAR = 2;
+
+let currentUnit = UNIT_DAY;
+let byCityData = [];
+
 const dayChartConfig = {
   type: "bar",
   data: {
@@ -50,7 +57,7 @@ const byDayChartConfig = {
 };
 
 const byCityChartConfig = {
-  type: "bar",
+  type: "line",
   data: {
     labels: [],
     datasets: [
@@ -193,10 +200,13 @@ function makeRequest(method, url) {
   });
 }
 
-function fetchActiveUsers(startDate, endDate) {
+function fetchActiveUsers(startDate, endDate, dimensions) {
+  let dimensionsQuery = dimensions
+    .map((name) => `dimensions=${name}`)
+    .join("&");
   return makeRequest(
     "GET",
-    `/api/active_users.json?startDate=${startDate}&endDate=${endDate}`
+    `/api/active_users.json?startDate=${startDate}&endDate=${endDate}&${dimensionsQuery}`
   ).then((value) => JSON.parse(value)); // TODO possibly parse responseText instead
 }
 
@@ -204,16 +214,72 @@ function refreshDailyChart(startDate) {
   refreshByCityHelperChart(dayChart, dayChartConfig, startDate, startDate);
 }
 
+function updateByCityUnit(extractor) {
+  let result = {};
+  byCityData.forEach((row) => {
+    let label = row[0];
+    let value = row[1];
+    let parsed = extractor(label);
+    if (result[parsed]) {
+      result[parsed] += value;
+    } else {
+      result[parsed] = value;
+    }
+  });
+
+  let labels = Object.keys(result).sort();
+  let data = [];
+  let acc = 0;
+  labels.forEach((label) => {
+    let nextValue = acc + result[label];
+    acc = nextValue;
+    data.push(nextValue);
+  });
+
+  byCityChartConfig.data.labels = labels;
+  byCityChartConfig.data.datasets[0].data = data;
+  byCityChart.update();
+}
+
+function handleUnitButton(newUnit) {
+  console.log("I am here");
+  currentUnit = newUnit;
+
+  switch (currentUnit) {
+    case UNIT_DAY:
+      updateByCityUnit((day) => day);
+      break;
+    case UNIT_MONTH:
+      updateByCityUnit((day) => day.substring(0, 6));
+      break;
+    case UNIT_YEAR:
+      updateByCityUnit((day) => day.substring(0, 4));
+      break;
+    default:
+      console.log("default");
+  }
+}
+
+window.handleUnitButton = handleUnitButton;
+
 function refreshByCityChart(startDate, endDate) {
-  refreshByCityHelperChart(byCityChart, byCityChartConfig, startDate, endDate);
+  fetchActiveUsers(startDate, endDate, ["date"]).then((response) => {
+    // chartConfig.data.labels = response.cities;
+    // chartConfig.data.datasets[0].data = response.activeUsers;
+    byCityData = response.rows.map((row) => [
+      row.dimensionValues[0].value,
+      row.metricValues[0].value,
+    ]);
+
+    handleUnitButton(currentUnit);
+
+    console.log(response);
+    // chart.update();
+  });
 }
 
 function refreshByDayChart(startDate, endDate) {}
 
 function refreshByCityHelperChart(chart, chartConfig, startDate, endDate) {
-  fetchActiveUsers(startDate, endDate).then((response) => {
-    chartConfig.data.labels = response.cities;
-    chartConfig.data.datasets[0].data = response.activeUsers;
-    chart.update();
-  });
+  // TODO
 }

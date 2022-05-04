@@ -65,7 +65,9 @@ exports.getData = function (req, res) {
     .then((report) => {
       console.log("Report result:");
       console.log(JSON.stringify(report, null, 2));
+      res.json(report[0]);
 
+      /*
       let cities = [],
         data = [];
       report[0].rows.forEach((row) => {
@@ -79,5 +81,6 @@ exports.getData = function (req, res) {
         cities: cities,
         activeUsers: data,
       });
+      */
     });
 };
