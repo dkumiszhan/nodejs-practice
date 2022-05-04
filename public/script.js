@@ -23,7 +23,7 @@ const dayChartConfig = {
     labels: [],
     datasets: [
       {
-        label: "Day View",
+        label: "Single Day View",
         backgroundColor: "#2E5681",
         borderColor: "#2E5681",
         data: [],
@@ -34,7 +34,7 @@ const dayChartConfig = {
 };
 
 const byDayChartConfig = {
-  type: "line",
+  type: "bar",
   data: {
     labels: [],
     datasets: [

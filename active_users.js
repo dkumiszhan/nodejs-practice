@@ -31,6 +31,7 @@ exports.getData = function (req, res) {
 
   let startDate = queryObject["startDate"];
   let endDate = queryObject["endDate"];
+  let additionalDimensions = queryObject["additionalDimensions"];
 
   console.log(startDate);
   analyticsDataClient
