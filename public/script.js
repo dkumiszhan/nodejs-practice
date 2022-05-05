@@ -20,27 +20,12 @@ console.log("Hello from frontend JS");
 const UNIT_DAY = 0;
 const UNIT_MONTH = 1;
 const UNIT_YEAR = 2;
+const UNIT_ALLTIME = 3;
 
 let currentUnit = UNIT_DAY;
-let byCityData = [];
+let byTimeData = [];
 
-const dayChartConfig = {
-  type: "bar",
-  data: {
-    labels: [],
-    datasets: [
-      {
-        label: "Single Day View",
-        backgroundColor: "#2E5681",
-        borderColor: "#2E5681",
-        data: [],
-      },
-    ],
-  },
-  options: {},
-};
-
-const byDayChartConfig = {
+const byCityChartConfig = {
   type: "bar",
   data: {
     labels: [],
@@ -56,7 +41,7 @@ const byDayChartConfig = {
   options: {},
 };
 
-const byCityChartConfig = {
+const byTimeChartConfig = {
   type: "line",
   data: {
     labels: [],
@@ -66,15 +51,25 @@ const byCityChartConfig = {
         backgroundColor: "#FEC414",
         borderColor: "#FEC414",
         data: [],
+        stepped: true,
       },
     ],
   },
-  options: {},
+  options: {
+    scales: {
+      x: {
+        min: "2020",
+        type: "time",
+        time: {
+          unit: "year",
+        },
+      },
+    },
+  },
 };
 
-let dayChart;
+let byTimeChart;
 let byCityChart;
-let byDayChart;
 
 const startDateInput = document.querySelector(".start-date");
 const endDateInput = document.querySelector(".end-date");
@@ -82,17 +77,13 @@ const chooseDateButton = document.querySelector(".choose-date");
 const boardsTitle = document.querySelector(".boards__title");
 
 function initCharts() {
-  dayChart = new Chart(
-    document.getElementsByClassName("daily_chart"),
-    dayChartConfig
+  byTimeChart = new Chart(
+    document.getElementsByClassName("by_time_chart"),
+    byTimeChartConfig
   );
   byCityChart = new Chart(
     document.getElementsByClassName("by_city_chart"),
     byCityChartConfig
-  );
-  byDayChart = new Chart(
-    document.getElementsByClassName("by_day_chart"),
-    byDayChartConfig
   );
 }
 
@@ -110,9 +101,6 @@ function updateCharts(cities, activeUsers) {
   console.log(usersCount);
   totalUsers.textContent = usersCount;
   boardsTitle.classList.add("boards__title_visible");
-  dayChartConfig.data.labels = cities;
-  dayChartConfig.data.datasets[0].data = activeUsers;
-  dayChart.update();
 }
 
 chooseDateButton.addEventListener("click", function () {
@@ -143,9 +131,8 @@ function dateChosen() {
   let startDate = startDateInput.value;
   let endDate = endDateInput.value;
 
+  refreshByTimeChart(startDate, endDate);
   refreshByCityChart(startDate, endDate);
-  refreshByDayChart(startDate, endDate);
-  refreshDailyChart(startDate);
 
   /*
   let httpRequest = new XMLHttpRequest();
@@ -210,16 +197,15 @@ function fetchActiveUsers(startDate, endDate, dimensions) {
   ).then((value) => JSON.parse(value)); // TODO possibly parse responseText instead
 }
 
-function refreshDailyChart(startDate) {
-  refreshByCityHelperChart(dayChart, dayChartConfig, startDate, startDate);
-}
-
-function updateByCityUnit(extractor) {
+function updateByCityUnit(parser, unit, startDate, endDate) {
   let result = {};
-  byCityData.forEach((row) => {
+  result[parser(startDateInput.value.replaceAll("-", ""))] = 0;
+  result[parser(endDateInput.value.replaceAll("-", ""))] = 0;
+
+  byTimeData.forEach((row) => {
     let label = row[0];
     let value = row[1];
-    let parsed = extractor(label);
+    let parsed = parser(label);
     if (result[parsed]) {
       result[parsed] += value;
     } else {
@@ -233,26 +219,48 @@ function updateByCityUnit(extractor) {
   labels.forEach((label) => {
     let nextValue = acc + result[label];
     acc = nextValue;
-    data.push(nextValue);
+    data.push({
+      x: label,
+      y: nextValue,
+    });
   });
 
-  byCityChartConfig.data.labels = labels;
-  byCityChartConfig.data.datasets[0].data = data;
-  byCityChart.update();
+  console.log(data);
+
+  // byTimeChartConfig.data.labels = labels;
+  byTimeChartConfig.data.datasets[0].data = data;
+  byTimeChartConfig.options.scales.x.min = startDate;
+  byTimeChartConfig.options.scales.x.max = endDate;
+  byTimeChartConfig.options.scales.x.time.unit = unit;
+  console.log(byTimeChartConfig.data);
+  byTimeChart.update();
 }
 
 function handleUnitButton(newUnit) {
-  console.log("I am here");
+  console.log("handleUnitButton()");
   currentUnit = newUnit;
 
   switch (currentUnit) {
     case UNIT_DAY:
-      updateByCityUnit((day) => day);
+      updateByCityUnit(
+        (day) =>
+          `${day.substring(0, 4)}-${day.substring(4, 6)}-${day.substring(
+            6,
+            8
+          )}`,
+        "day"
+      );
       break;
     case UNIT_MONTH:
-      updateByCityUnit((day) => day.substring(0, 6));
+      updateByCityUnit(
+        (day) => `${day.substring(0, 4)}-${day.substring(4, 6)}`,
+        "month"
+      );
       break;
     case UNIT_YEAR:
+      updateByCityUnit((day) => day.substring(0, 4), "year");
+      break;
+    case UNIT_ALLTIME:
       updateByCityUnit((day) => day.substring(0, 4));
       break;
     default:
@@ -262,13 +270,13 @@ function handleUnitButton(newUnit) {
 
 window.handleUnitButton = handleUnitButton;
 
-function refreshByCityChart(startDate, endDate) {
+function refreshByTimeChart(startDate, endDate) {
   fetchActiveUsers(startDate, endDate, ["date"]).then((response) => {
     // chartConfig.data.labels = response.cities;
     // chartConfig.data.datasets[0].data = response.activeUsers;
-    byCityData = response.rows.map((row) => [
+    byTimeData = response.rows.map((row) => [
       row.dimensionValues[0].value,
-      row.metricValues[0].value,
+      parseInt(row.metricValues[0].value),
     ]);
 
     handleUnitButton(currentUnit);
@@ -278,8 +286,4 @@ function refreshByCityChart(startDate, endDate) {
   });
 }
 
-function refreshByDayChart(startDate, endDate) {}
-
-function refreshByCityHelperChart(chart, chartConfig, startDate, endDate) {
-  // TODO
-}
+function refreshByCityChart(startDate, endDate) {}
