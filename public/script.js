@@ -296,6 +296,8 @@ function refreshByCityChart(startDate, endDate) {
   fetchActiveUsers(startDate, endDate, ["city"]).then((response) => {
     // chartConfig.data.labels = response.cities;
     // chartConfig.data.datasets[0].data = response.activeUsers;
+    byCityChartConfig.data.labels = [];
+    byCityChartConfig.data.datasets[0].data = [];
     response.rows.map((row) => {
       byCityChartConfig.data.labels.push(row.dimensionValues[0].value);
       byCityChartConfig.data.datasets[0].data.push(
