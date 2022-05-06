@@ -49,6 +49,14 @@
   align-items: center;
 }
 
+.buttons {
+  margin-top: 30px;    
+}
+
+.label {
+  font-size: 25px;    
+}
+
 .historicview-board {
   display: flex;
   flex-direction: column;

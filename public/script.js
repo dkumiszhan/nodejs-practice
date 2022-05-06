@@ -71,9 +71,17 @@ const byTimeChartConfig = {
 let byTimeChart;
 let byCityChart;
 
-const startDateInput = document.querySelector(".start-date");
-const endDateInput = document.querySelector(".end-date");
-const chooseDateButton = document.querySelector(".choose-date");
+function getStartDate() {
+  return $("#reportrange")
+    .data("daterangepicker")
+    .startDate.format("YYYY-MM-DD");
+}
+
+function getEndDate() {
+  return $("#reportrange").data("daterangepicker").endDate.format("YYYY-MM-DD");
+}
+
+// const chooseDateButton = document.querySelector(".choose-date");
 const boardsTitle = document.querySelector(".boards__title");
 
 function initCharts() {
@@ -86,8 +94,6 @@ function initCharts() {
     byCityChartConfig
   );
 }
-
-initCharts();
 
 const totalUsers = document.querySelector(".totalUsers");
 console.log(totalUsers);
@@ -103,10 +109,10 @@ function updateCharts(cities, activeUsers) {
   boardsTitle.classList.add("boards__title_visible");
 }
 
-chooseDateButton.addEventListener("click", function () {
-  console.log("you clicked");
-  dateChosen();
-});
+// chooseDateButton.addEventListener("click", function () {
+//   console.log("you clicked");
+//   dateChosen();
+// });
 
 function collectData(dateStart, dateEnd) {
   // let httpRequest = new XMLHttpRequest();
@@ -128,8 +134,8 @@ function collectData(dateStart, dateEnd) {
 }
 
 function dateChosen() {
-  let startDate = startDateInput.value;
-  let endDate = endDateInput.value;
+  let startDate = getStartDate();
+  let endDate = getEndDate();
 
   refreshByTimeChart(startDate, endDate);
   refreshByCityChart(startDate, endDate);
@@ -199,8 +205,8 @@ function fetchActiveUsers(startDate, endDate, dimensions) {
 
 function updateByCityUnit(parser, unit, startDate, endDate) {
   let result = {};
-  result[parser(startDateInput.value.replaceAll("-", ""))] = 0;
-  result[parser(endDateInput.value.replaceAll("-", ""))] = 0;
+  result[parser(getStartDate().replaceAll("-", ""))] = 0;
+  result[parser(getEndDate().replaceAll("-", ""))] = 0;
 
   byTimeData.forEach((row) => {
     let label = row[0];
@@ -286,4 +292,78 @@ function refreshByTimeChart(startDate, endDate) {
   });
 }
 
-function refreshByCityChart(startDate, endDate) {}
+function refreshByCityChart(startDate, endDate) {
+  fetchActiveUsers(startDate, endDate, ["city"]).then((response) => {
+    // chartConfig.data.labels = response.cities;
+    // chartConfig.data.datasets[0].data = response.activeUsers;
+    response.rows.map((row) => {
+      byCityChartConfig.data.labels.push(row.dimensionValues[0].value);
+      byCityChartConfig.data.datasets[0].data.push(
+        parseInt(row.metricValues[0].value)
+      );
+    });
+    //byCityChartConfig.data.labels = byTimeData[0];
+    //byCityChartConfig.data.datasets[0].data = byTimeData[1];
+
+    //handleUnitButton(currentUnit);
+
+    console.log(response);
+    byCityChart.update();
+  });
+}
+
+function initializeDatepicker() {
+  function cb(start, end) {
+    $("#reportrange span").html(
+      start.format("MMMM D, YYYY") + " - " + end.format("MMMM D, YYYY")
+    );
+  }
+
+  $("#reportrange").daterangepicker(
+    {
+      startDate: moment().subtract(5, "days"),
+      endDate: moment(),
+      ranges: {
+        "Quarter 1": [
+          moment().startOf("year"),
+          moment().startOf("year").add(2, "month").endOf("month"),
+        ],
+        "Quarter 2": [
+          moment().startOf("year").add(3, "month"),
+          moment().startOf("year").add(5, "month").endOf("month"),
+        ],
+        "Quarter 3": [
+          moment().startOf("year").add(6, "month"),
+          moment().startOf("year").add(8, "month").endOf("month"),
+        ],
+        "Quarter 4": [
+          moment().startOf("year").add(9, "month"),
+          moment().startOf("year").add(11, "month").endOf("month"),
+        ],
+        Today: [moment(), moment()],
+        Yesterday: [moment().subtract(1, "days"), moment().subtract(1, "days")],
+        "Last 7 Days": [moment().subtract(6, "days"), moment()],
+        "Last 30 Days": [moment().subtract(29, "days"), moment()],
+        "This Month": [moment().startOf("month"), moment().endOf("month")],
+        "Last Month": [
+          moment().subtract(1, "month").startOf("month"),
+          moment().subtract(1, "month").endOf("month"),
+        ],
+      },
+    },
+    cb
+  );
+
+  cb(moment().subtract(5, "days"), moment());
+
+  $("#reportrange").on("apply.daterangepicker", function (ev, picker) {
+    //do something, like clearing an input
+    // console.log($("#daterange").val());
+    // console.log(ev);
+    // console.log(picker);
+    dateChosen();
+  });
+}
+
+initCharts();
+initializeDatepicker();
