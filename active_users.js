@@ -1,4 +1,6 @@
-let propertyId = 309400325;
+// let propertyId = 309400325;
+//let propertyId = 307224650;
+let propertyId = 270599279;
 
 // Imports the Google Analytics Data API client library.
 const { BetaAnalyticsDataClient } = require("@google-analytics/data");

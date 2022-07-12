@@ -342,6 +342,10 @@ function initializeDatepicker() {
           moment().startOf("year").add(9, "month"),
           moment().startOf("year").add(11, "month").endOf("month"),
         ],
+        Year: [
+          moment().startOf("year"),
+          moment().startOf("year").add(11, "month").endOf("month"),
+        ],
         Today: [moment(), moment()],
         Yesterday: [moment().subtract(1, "days"), moment().subtract(1, "days")],
         "Last 7 Days": [moment().subtract(6, "days"), moment()],

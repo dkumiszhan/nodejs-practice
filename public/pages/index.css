@@ -42,6 +42,12 @@
   color: #484848; 
 }
 
+.header__logo {
+  width: 130px;
+  height: 50px;
+  object-fit: contain;
+}
+
 .dayview-board {
   display: flex;
   justify-content: space-between;
