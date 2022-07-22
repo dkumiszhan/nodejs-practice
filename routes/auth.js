@@ -6,7 +6,8 @@ var express = require("express");
 var router = express.Router();
 
 router.get("/login", function (req, res, next) {
-  res.render("login");
+  //res.render("login");
+  res.redirect("/");
 });
 
 router.get("/login/federated/google", passport.authenticate("google"));
@@ -68,6 +69,12 @@ passport.use(
       console.log(profile);
       console.log("finished doing stuff");
       return cb(null, profile);
+      //   User.findOne({email: user.emails[0].value}, function(err, user){
+      //       if (err) {return cb(err);}
+      //       if (!user) {console.log('not logged in. create a new user record and link it to the');}
+      //       return profile;
+
+      //   });
     }
     //   function(issuer, profile, cb) {
     //     db.get('SELECT * FROM federated_credentials WHERE provider = ? AND subject = ?', [

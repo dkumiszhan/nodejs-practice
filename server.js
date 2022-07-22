@@ -5,6 +5,7 @@ const auth = require("./routes/auth");
 const express = require("express");
 const passport = require("passport");
 const app = express();
+app.set("view engine", "html");
 const port = 3000;
 const activeUsers = require("./active_users");
 
@@ -15,6 +16,13 @@ var mongoose = require("mongoose");
 mongoose.connect(
   "mongodb://root:root_password@localhost:27017/emily?authSource=admin"
 );
+
+var userSchema = new mongoose.Schema({
+  email: { type: String, unique: true },
+  name: String,
+});
+
+var User = mongoose.model("user", userSchema);
 
 // const { Schema } = mongoose;
 
