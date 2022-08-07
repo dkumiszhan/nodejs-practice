@@ -26,6 +26,7 @@ let currentUnit = UNIT_DAY;
 let byTimeData = [];
 
 let currentUserInfo = null;
+let selectedPropertyId = null;
 
 const byCityChartConfig = {
   type: "bar",
@@ -141,68 +142,15 @@ function dateChosen() {
 
   refreshByTimeChart(startDate, endDate);
   refreshByCityChart(startDate, endDate);
-
-  /*
-  let httpRequest = new XMLHttpRequest();
-  httpRequest.open(
-    "GET",
-    `/api/active_users.json?startDate=${startDate}&endDate=${endDate}`,
-    true
-  );
-  httpRequest.onreadystatechange = function () {
-    if (httpRequest.readyState === XMLHttpRequest.DONE) {
-      // Everything is good, the response was received.
-      if (httpRequest.status === 200) {
-        alert(httpRequest.responseText);
-        let parsed = JSON.parse(httpRequest.responseText);
-        updateCharts(parsed.cities, parsed.activeUsers);
-      } else {
-        alert("There was a problem with the request.");
-      }
-    } else {
-      // Not ready yet.
-    }
-  };
-
-  httpRequest.send();
-  */
-}
-
-/**
- * Copied from https://stackoverflow.com/questions/30008114/how-do-i-promisify-native-xhr
- */
-function makeRequest(method, url) {
-  return new Promise(function (resolve, reject) {
-    var xhr = new XMLHttpRequest();
-    xhr.open(method, url);
-    xhr.onload = function () {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve(xhr.response);
-      } else {
-        reject({
-          status: xhr.status,
-          statusText: xhr.statusText,
-        });
-      }
-    };
-    xhr.onerror = function () {
-      reject({
-        status: xhr.status,
-        statusText: xhr.statusText,
-      });
-    };
-    xhr.send();
-  });
 }
 
 function fetchActiveUsers(startDate, endDate, dimensions) {
   let dimensionsQuery = dimensions
     .map((name) => `dimensions=${name}`)
     .join("&");
-  return makeRequest(
-    "GET",
-    `/api/active_users.json?startDate=${startDate}&endDate=${endDate}&${dimensionsQuery}`
-  ).then((value) => JSON.parse(value)); // TODO possibly parse responseText instead
+  return fetch(
+    `/api/active_users.json?startDate=${startDate}&endDate=${endDate}&${dimensionsQuery}&propertyId=${selectedPropertyId}`
+  ).then((value) => value.json());
 }
 
 function updateByCityUnit(parser, unit, startDate, endDate) {
@@ -384,6 +332,13 @@ function loadUserInfo() {
     .then((data) => {
       if (data.role === "admin") {
         drawAdminPropertySelector();
+      } else {
+        if (data.propertyIds.length > 0) {
+          selectedPropertyId = data.propertyIds[0];
+          initializeDatepicker();
+        } else {
+          console.error(`User ${data.email} has no propertyIds`);
+        }
       }
     });
 }
@@ -394,8 +349,6 @@ function drawAdminPropertySelector() {
     .then((userArray) => {
       const selectNode = document.querySelector(".adminContainer .properties");
 
-      console.log("array is ");
-      console.log(userArray);
       userArray.forEach((user) => {
         if (user && user.propertyIds) {
           user.propertyIds.forEach((propertyId) => {
@@ -407,13 +360,22 @@ function drawAdminPropertySelector() {
         }
       });
 
+      selectNode.addEventListener("change", function (event) {
+        const selectedValue =
+          selectNode.options[selectNode.selectedIndex].value;
+        if (selectedValue) {
+          console.log(`Property ID ${selectedValue} was selected`);
+          selectedPropertyId = selectedValue;
+
+          initializeDatepicker();
+        }
+      });
       document.querySelector(".adminContainer").style.display = "block";
     });
 }
 
 function startup() {
   initCharts();
-  initializeDatepicker();
   loadUserInfo();
 }
 

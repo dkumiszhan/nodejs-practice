@@ -1,6 +1,6 @@
 // let propertyId = 309400325;
 //let propertyId = 307224650;
-let propertyId = 270599279;
+let defaultPropertyId = 270599279;
 
 // Imports the Google Analytics Data API client library.
 const { BetaAnalyticsDataClient } = require("@google-analytics/data");
@@ -9,7 +9,7 @@ const { BetaAnalyticsDataClient } = require("@google-analytics/data");
 // specified in GOOGLE_APPLICATION_CREDENTIALS environment variable.
 const analyticsDataClient = new BetaAnalyticsDataClient();
 
-exports.getData = function (req, res) {
+function getData(req, res) {
   if (!req.query["startDate"]) {
     res.status(400).json({
       success: false,
@@ -26,8 +26,17 @@ exports.getData = function (req, res) {
     return;
   }
 
+  if (!req.query["propertyId"]) {
+    res.status(400).json({
+      success: false,
+      message: "No propertyId provided",
+    });
+    return;
+  }
+
   let startDate = req.query["startDate"];
   let endDate = req.query["endDate"];
+  let propertyId = req.query["propertyId"];
   let metrics = ["activeUsers"];
   let dimensions = ["city"];
 
@@ -85,4 +94,8 @@ exports.getData = function (req, res) {
       });
       */
     });
+}
+
+module.exports = {
+  getData,
 };
