@@ -13,32 +13,10 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
 var mongoose = require("mongoose");
+
 mongoose.connect(
   "mongodb://root:root_password@localhost:27017/emily?authSource=admin"
 );
-
-var userSchema = new mongoose.Schema({
-  email: { type: String, unique: true },
-  name: String,
-});
-
-var User = mongoose.model("user", userSchema);
-
-// const { Schema } = mongoose;
-
-// console.log({ Schema });
-
-// const dbSchema = new Schema({
-//   user: {
-//     email: String,
-//     sessionToken: String,
-//   },
-// });
-
-// console.log(dbSchema);
-
-// const dbModel = mongoose.model("Model", dbSchema);
-// console.log(dbModel);
 
 app.use(
   session({
@@ -54,6 +32,10 @@ app.use(
 app.use(passport.authenticate("session"));
 
 app.use("/", auth);
+
+app.get("/users/me", function (req, res) {
+  res.end(JSON.stringify(req.user));
+});
 
 app.get("/", (req, res) => {
   res.sendFile("./public/index.html", { root: __dirname });

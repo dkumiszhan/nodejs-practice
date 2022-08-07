@@ -1,4 +1,5 @@
 var passport = require("passport");
+var path = require("path");
 var GoogleStrategy = require("passport-google-oidc");
 
 var express = require("express");
@@ -7,7 +8,10 @@ var router = express.Router();
 
 router.get("/login", function (req, res, next) {
   //res.render("login");
-  res.redirect("/");
+  // res.redirect("/");
+  res.sendFile(path.resolve("./public/login.html"));
+  // next();
+  // return;
 });
 
 router.get("/login/federated/google", passport.authenticate("google"));
@@ -23,6 +27,7 @@ router.get(
 module.exports = router;
 
 passport.serializeUser(function (user, cb) {
+  console.log(user);
   process.nextTick(function () {
     cb(null, {
       id: user.id,
@@ -55,6 +60,23 @@ const dbModel = mongoose.model("Model", dbSchema);
 dbModel.find({'issuer': 'Google'}, {'profile.id': ClientID?}, function(err, cred))
 dbModel.set()
 */
+
+// var mongoose = require("mongoose");
+// mongoose.connect(
+//   "mongodb://root:root_password@localhost:27017/emily?authSource=admin"
+// );
+
+// var userSchema = new mongoose.Schema({
+//   email: { type: String, unique: true },
+//   name: String,
+// });
+
+// var User = mongoose.model("user", userSchema);
+
+//console.log(User.findOne({ email: "sss" }));
+
+const userDao = require("../userDao");
+
 passport.use(
   new GoogleStrategy(
     {
@@ -68,13 +90,22 @@ passport.use(
       console.log(endpoint);
       console.log(profile);
       console.log("finished doing stuff");
-      return cb(null, profile);
-      //   User.findOne({email: user.emails[0].value}, function(err, user){
-      //       if (err) {return cb(err);}
-      //       if (!user) {console.log('not logged in. create a new user record and link it to the');}
-      //       return profile;
+      console.log(profile.emails[0].value);
+      userDao
+        .findUser(profile.emails[0].value)
+        .then((existingUser) => {
+          console.log(existingUser);
+          if (!existingUser) {
+            return cb(
+              new Error(`User does not exist ${profile.emails[0].value}`)
+            );
+          }
 
-      //   });
+          return cb(null, profile);
+        })
+        .catch((err) => cb(err));
+
+      // return cb(null, profile);
     }
     //   function(issuer, profile, cb) {
     //     db.get('SELECT * FROM federated_credentials WHERE provider = ? AND subject = ?', [

@@ -28,8 +28,9 @@
 </head>
 
 <body class="page">
+
   <header class="header">
-    <a href="/login/federated/google"> login with google</a>
+    
     <h1 class="header__title">Dashboards</h1>
     <img class="header__logo" src="/public/images/guided-by-rtangent.png" alt="company logo">
     <!-- <p>test test test</p> -->
@@ -42,6 +43,13 @@
       <input class="end-date" type="date" id="end" name="trip-end" value="2022-04-20">
       <input class="choose-date" type="button" id="chooseDate" value="OK"> 
     </section> -->
+    <section>
+      <select name="properties" class="property-select">
+        <option value="111">Kuma</option>
+        <option value="222">Dog</option>
+    </select>
+    
+    </section>
 
     <section>
       <p class="label">Choose a date range:</p>
@@ -94,6 +102,25 @@
     <div class="historicview-board">
       <canvas class="historic-view"></canvas>
       <canvas class="historic-view-cities"></canvas>
+    </div>
+
+    
+    <div class="adminPopup">
+      <fieldset>
+        <legend>Select a property ID:</legend>
+    
+        <div>
+          <input type="radio" id="kuma" name="property" value="kuma"
+                 checked>
+          <label for="huey">Kuma</label>
+        </div>
+    
+        <div>
+          <input type="radio" id="dara" name="property" value="dara">
+          <label for="dewey">Dara</label>
+        </div>
+    
+    </fieldset>
     </div>
 
   </main>
