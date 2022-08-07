@@ -1,17 +1,14 @@
-var passport = require("passport");
-var path = require("path");
-var GoogleStrategy = require("passport-google-oidc");
+const passport = require("passport");
+const path = require("path");
+const userDao = require("../userDao");
+const GoogleStrategy = require("passport-google-oidc");
 
-var express = require("express");
+const express = require("express");
 
-var router = express.Router();
+const router = express.Router();
 
-router.get("/login", function (req, res, next) {
-  //res.render("login");
-  // res.redirect("/");
+router.get("/login", function (req, res) {
   res.sendFile(path.resolve("./public/login.html"));
-  // next();
-  // return;
 });
 
 router.get("/login/federated/google", passport.authenticate("google"));
@@ -23,8 +20,6 @@ router.get(
     failureRedirect: "/login",
   })
 );
-
-module.exports = router;
 
 passport.serializeUser(function (user, cb) {
   console.log(user);
@@ -74,8 +69,6 @@ dbModel.set()
 // var User = mongoose.model("user", userSchema);
 
 //console.log(User.findOne({ email: "sss" }));
-
-const userDao = require("../userDao");
 
 passport.use(
   new GoogleStrategy(
@@ -148,3 +141,47 @@ passport.use(
     //   }
   )
 );
+
+function requireAuth(req, res, next) {
+  if (!req.user) {
+    res.status(401);
+    res.end(
+      JSON.stringify({
+        error: "You are not authorized",
+      })
+    );
+  } else {
+    next();
+  }
+}
+
+function requireRole(role) {
+  return function (req, res, next) {
+    requireAuth(req, res, function () {
+      userDao
+        .findUser(req.user.email)
+        .then((data) => {
+          if (data.role !== role) {
+            res.status(401);
+            res.end(
+              JSON.stringify({
+                error: `You are not an ${role}`,
+              })
+            );
+          } else {
+            next();
+          }
+        })
+        .catch((error) => {
+          res.status(500);
+          res.end(JSON.stringify(error));
+        });
+    });
+  };
+}
+
+module.exports = {
+  router,
+  requireAuth,
+  requireRole,
+};

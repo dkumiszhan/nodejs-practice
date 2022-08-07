@@ -34,72 +34,31 @@ app.use(
 
 app.use(passport.authenticate("session"));
 
-app.use("/", auth);
+app.use("/", auth.requireAuth, auth.router);
 
-app.get("/users/me", function (req, res) {
-  if (!req.user) {
-    res.status(401);
-    res.end(
-      JSON.stringify({
-        error: "You are not authorized",
-      })
-    );
-  } else {
-    userDao
-      .findUser(req.user.email)
-      .then((data) => {
-        res.end(JSON.stringify(data));
-      })
-      .catch((error) => {
-        res.status(500);
-        res.end(JSON.stringify(error));
-      });
-  }
+app.get("/users/me", auth.requireAuth, function (req, res) {
+  userDao
+    .findUser(req.user.email)
+    .then((data) => {
+      res.end(JSON.stringify(data));
+    })
+    .catch((error) => {
+      res.status(500);
+      res.end(JSON.stringify(error));
+    });
 });
 
-app.get(
-  "/admin/propertyIds",
-  function (req, res, next) {
-    if (!req.user) {
-      res.status(401);
-      res.end(
-        JSON.stringify({
-          error: "You are not authorized",
-        })
-      );
-    } else {
-      userDao
-        .findUser(req.user.email)
-        .then((data) => {
-          if (data.role !== "admin") {
-            res.status(401);
-            res.end(
-              JSON.stringify({
-                error: "You are not an admin",
-              })
-            );
-          } else {
-            next();
-          }
-        })
-        .catch((error) => {
-          res.status(500);
-          res.end(JSON.stringify(error));
-        });
-    }
-  },
-  function (req, res) {
-    userDao
-      .findAll()
-      .then((data) => {
-        res.end(JSON.stringify(data));
-      })
-      .catch((error) => {
-        res.status(500);
-        res.end(JSON.stringify(error));
-      });
-  }
-);
+app.get("/admin/propertyIds", auth.requireRole("admin"), function (req, res) {
+  userDao
+    .findAll()
+    .then((data) => {
+      res.end(JSON.stringify(data));
+    })
+    .catch((error) => {
+      res.status(500);
+      res.end(JSON.stringify(error));
+    });
+});
 
 app.get("/", (req, res) => {
   res.sendFile("./public/index.html", { root: __dirname });
