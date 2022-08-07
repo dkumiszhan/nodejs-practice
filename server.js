@@ -1,6 +1,7 @@
 // const indexRouter = require("./public/script");
 // const authRouter = require("./routes/auth");
 const auth = require("./routes/auth");
+const userDao = require("./userDao");
 
 const express = require("express");
 const passport = require("passport");
@@ -18,6 +19,8 @@ mongoose.connect(
   "mongodb://root:root_password@localhost:27017/emily?authSource=admin"
 );
 
+app.use(express.json());
+
 app.use(
   session({
     secret: "foo",
@@ -34,7 +37,25 @@ app.use(passport.authenticate("session"));
 app.use("/", auth);
 
 app.get("/users/me", function (req, res) {
-  res.end(JSON.stringify(req.user));
+  // res.end(JSON.stringify(req.user));
+  if (!req.user) {
+    res.status(401);
+    res.end(
+      JSON.stringify({
+        error: "You are not authorized",
+      })
+    );
+  } else {
+    userDao
+      .findUser(req.user.email)
+      .then((data) => {
+        res.end(JSON.stringify(data));
+      })
+      .catch((error) => {
+        res.status(500);
+        res.end(JSON.stringify(error));
+      });
+  }
 });
 
 app.get("/", (req, res) => {
