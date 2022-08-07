@@ -37,7 +37,6 @@ app.use(passport.authenticate("session"));
 app.use("/", auth);
 
 app.get("/users/me", function (req, res) {
-  // res.end(JSON.stringify(req.user));
   if (!req.user) {
     res.status(401);
     res.end(
@@ -57,6 +56,50 @@ app.get("/users/me", function (req, res) {
       });
   }
 });
+
+app.get(
+  "/admin/propertyIds",
+  function (req, res, next) {
+    if (!req.user) {
+      res.status(401);
+      res.end(
+        JSON.stringify({
+          error: "You are not authorized",
+        })
+      );
+    } else {
+      userDao
+        .findUser(req.user.email)
+        .then((data) => {
+          if (data.role !== "admin") {
+            res.status(401);
+            res.end(
+              JSON.stringify({
+                error: "You are not an admin",
+              })
+            );
+          } else {
+            next();
+          }
+        })
+        .catch((error) => {
+          res.status(500);
+          res.end(JSON.stringify(error));
+        });
+    }
+  },
+  function (req, res) {
+    userDao
+      .findAll()
+      .then((data) => {
+        res.end(JSON.stringify(data));
+      })
+      .catch((error) => {
+        res.status(500);
+        res.end(JSON.stringify(error));
+      });
+  }
+);
 
 app.get("/", (req, res) => {
   res.sendFile("./public/index.html", { root: __dirname });

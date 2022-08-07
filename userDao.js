@@ -31,7 +31,14 @@ function saveUser(email, propertyIds, role) {
 
 function findUser(email) {
   return User.findOne({ email: email }).then((value) => {
-    console.log("finished " + JSON.stringify(value));
+    console.log("findUser() Repsonse " + JSON.stringify(value));
+    return value;
+  });
+}
+
+function findAll() {
+  return User.find({}).then((value) => {
+    console.log("findAll() response " + JSON.stringify(value));
     return value;
   });
 }
@@ -51,4 +58,4 @@ console.log("all done");
 // console.log(findUser("asdfasdf@asdfasd.com"));
 // saveUser("test@gmail.com", ["123", "234"]);
 
-module.exports = { saveUser, findUser };
+module.exports = { saveUser, findUser, findAll };
