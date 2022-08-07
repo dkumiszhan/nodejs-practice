@@ -93,6 +93,10 @@ function getData(req, res) {
         activeUsers: data,
       });
       */
+    })
+    .catch((error) => {
+      res.status(500);
+      res.json(error);
     });
 }
 
