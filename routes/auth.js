@@ -145,11 +145,9 @@ passport.use(
 function requireAuth(req, res, next) {
   if (!req.user) {
     res.status(401);
-    res.end(
-      JSON.stringify({
-        error: "You are not authorized",
-      })
-    );
+    res.json({
+      error: "You are not authorized",
+    });
   } else {
     next();
   }
@@ -163,18 +161,16 @@ function requireRole(role) {
         .then((data) => {
           if (data.role !== role) {
             res.status(401);
-            res.end(
-              JSON.stringify({
-                error: `You are not an ${role}`,
-              })
-            );
+            res.json({
+              error: `You are not an ${role}`,
+            });
           } else {
             next();
           }
         })
         .catch((error) => {
           res.status(500);
-          res.end(JSON.stringify(error));
+          res.json(error);
         });
     });
   };

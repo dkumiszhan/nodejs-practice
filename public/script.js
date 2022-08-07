@@ -25,6 +25,8 @@ const UNIT_ALLTIME = 3;
 let currentUnit = UNIT_DAY;
 let byTimeData = [];
 
+let currentUserInfo = null;
+
 const byCityChartConfig = {
   type: "bar",
   data: {
@@ -371,5 +373,48 @@ function initializeDatepicker() {
   });
 }
 
-initCharts();
-initializeDatepicker();
+function loadUserInfo() {
+  fetch("/users/me")
+    .then((data) => data.json())
+    .then((data) => {
+      console.log("data is " + JSON.stringify(data));
+      currentUserInfo = data;
+      return data;
+    })
+    .then((data) => {
+      if (data.role === "admin") {
+        drawAdminPropertySelector();
+      }
+    });
+}
+
+function drawAdminPropertySelector() {
+  fetch("/admin/propertyIds")
+    .then((data) => data.json())
+    .then((userArray) => {
+      const selectNode = document.querySelector(".adminContainer .properties");
+
+      console.log("array is ");
+      console.log(userArray);
+      userArray.forEach((user) => {
+        if (user && user.propertyIds) {
+          user.propertyIds.forEach((propertyId) => {
+            let option = document.createElement("option");
+            option.value = propertyId;
+            option.innerHTML = `${propertyId} - ${user.email}`;
+            selectNode.appendChild(option);
+          });
+        }
+      });
+
+      document.querySelector(".adminContainer").style.display = "block";
+    });
+}
+
+function startup() {
+  initCharts();
+  initializeDatepicker();
+  loadUserInfo();
+}
+
+startup();

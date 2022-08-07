@@ -40,11 +40,11 @@ app.get("/users/me", auth.requireAuth, function (req, res) {
   userDao
     .findUser(req.user.email)
     .then((data) => {
-      res.end(JSON.stringify(data));
+      res.json(data);
     })
     .catch((error) => {
       res.status(500);
-      res.end(JSON.stringify(error));
+      res.json(error);
     });
 });
 
@@ -52,11 +52,11 @@ app.get("/admin/propertyIds", auth.requireRole("admin"), function (req, res) {
   userDao
     .findAll()
     .then((data) => {
-      res.end(JSON.stringify(data));
+      res.json(data);
     })
     .catch((error) => {
       res.status(500);
-      res.end(JSON.stringify(error));
+      res.json(error);
     });
 });
 
