@@ -6,6 +6,7 @@ var userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   propertyIds: [String],
   role: String,
+  propertyNames: [String],
 });
 
 const User = mongoose.model("Users", userSchema);
@@ -22,6 +23,7 @@ function saveUser(email, propertyIds, role) {
     { email: email },
     { propertyIds: propertyIds },
     { role: role },
+    { propertyNames: propertyNames },
     { upsert: true }
   ).then((value) => {
     console.log("finished " + JSON.stringify(value));

@@ -40,6 +40,11 @@
   font-size: 40px;
   font-weight: bold;
   color: #484848;
+  margin-bottom: 20px;
+}
+
+.header__title_login {
+  text-align: center;
 }
 
 .header__logo {
@@ -104,6 +109,10 @@
 .login__link {
   font-size: 25px;
   color: #000;
+  border: 1px solid #000;
+  text-align: center;
+  padding: 20px 30px;
+  margin-top: 40px;
 }
 
 .adminPopup {
@@ -112,4 +121,27 @@
 
 .adminPopup_visible {
   display: block;
+}
+
+.main_login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.header_login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 100px;
+  margin-top: 50px;
+
+}
+
+.header__logo-container {
+  display: flex;
+  flex-direction: column;
+
 }

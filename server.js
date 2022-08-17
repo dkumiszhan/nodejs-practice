@@ -34,7 +34,7 @@ app.use(
 
 app.use(passport.authenticate("session"));
 
-app.use("/", auth.requireAuth, auth.router);
+app.use("/", auth.router);
 
 app.get("/users/me", auth.requireAuth, function (req, res) {
   userDao
@@ -60,7 +60,7 @@ app.get("/admin/propertyIds", auth.requireRole("admin"), function (req, res) {
     });
 });
 
-app.get("/", (req, res) => {
+app.get("/", auth.redirectIfUnauth, (req, res) => {
   res.sendFile("./public/index.html", { root: __dirname });
 });
 

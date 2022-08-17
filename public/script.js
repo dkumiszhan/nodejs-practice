@@ -325,6 +325,10 @@ function loadUserInfo() {
   fetch("/users/me")
     .then((data) => data.json())
     .then((data) => {
+      const nameNode = document.querySelector(
+        ".header__user-container .header__username"
+      );
+      nameNode.textContent = data.email;
       console.log("data is " + JSON.stringify(data));
       currentUserInfo = data;
       return data;
@@ -350,13 +354,19 @@ function drawAdminPropertySelector() {
       const selectNode = document.querySelector(".adminContainer .properties");
 
       userArray.forEach((user) => {
-        if (user && user.propertyIds) {
+        if (user && user.propertyIds && user.propertyNames) {
+          let option = document.createElement("option");
+
           user.propertyIds.forEach((propertyId) => {
-            let option = document.createElement("option");
+            // let option = document.createElement("option");
             option.value = propertyId;
-            option.innerHTML = `${propertyId} - ${user.email}`;
-            selectNode.appendChild(option);
+            // option.innerHTML = `${propertyId} - ${user.email}`;
+            // selectNode.appendChild(option);
           });
+          user.propertyNames.forEach((propertyName) => {
+            option.innerHTML = `${propertyName}`;
+          });
+          selectNode.appendChild(option);
         }
       });
 
@@ -368,15 +378,35 @@ function drawAdminPropertySelector() {
           selectedPropertyId = selectedValue;
 
           initializeDatepicker();
+          dateChosen();
         }
       });
       document.querySelector(".adminContainer").style.display = "block";
     });
 }
 
+const logoutLink = document.querySelector(
+  ".header__user-container .header__signout"
+);
+
+function logoutUser() {
+  fetch("/logout", {
+    method: "POST",
+    redirect: "follow",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then(() => {
+    console.log("logging out");
+    window.location.href = "/login";
+  });
+}
+
 function startup() {
   initCharts();
   loadUserInfo();
+  // TODO
+  logoutLink.addEventListener("click", logoutUser);
 }
 
 startup();

@@ -13,6 +13,8 @@ router.get("/login", function (req, res) {
 
 router.get("/login/federated/google", passport.authenticate("google"));
 
+// router.get("/login", passport.authenticate("google"));
+
 router.get(
   "/oauth2/redirect/google",
   passport.authenticate("google", {
@@ -20,6 +22,17 @@ router.get(
     failureRedirect: "/login",
   })
 );
+
+// router.get(
+//   "/oauth2/redirect/google",
+//   passport.authenticate("google", {
+//     failureRedirect: "/login",
+//     failureMessage: true,
+//   }),
+//   function (req, res) {
+//     res.redirect("/");
+//   }
+// );
 
 passport.serializeUser(function (user, cb) {
   console.log(user);
@@ -38,6 +51,14 @@ passport.deserializeUser(function (user, cb) {
   });
 });
 
+router.post("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/login");
+  });
+});
 /* 
 import mongoose from "mongoose";
 mongoose.connect('mongodb://localhost:27017/myapp');
@@ -150,6 +171,15 @@ function requireAuth(req, res, next) {
     });
   } else {
     next();
+    // res.redirect("/");
+  }
+}
+
+function redirectIfUnauth(req, res, next) {
+  if (!req.user) {
+    res.redirect("/login");
+  } else {
+    next();
   }
 }
 
@@ -180,4 +210,5 @@ module.exports = {
   router,
   requireAuth,
   requireRole,
+  redirectIfUnauth,
 };
